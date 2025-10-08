@@ -4,9 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"strings"
-
-	"github.com/spf13/viper"
 )
 
 // These are properties and parameters specific to the fee plugin config. They should be distinct from system/core config
@@ -36,9 +33,8 @@ type FeeConfig struct {
 	}
 }
 
-type ConfigOption func(*FeeConfig) error
-
-func withDefaults(c *FeeConfig) {
+func DefaultFeeConfig() *FeeConfig {
+	c := new(FeeConfig)
 	c.ChainId = big.NewInt(1)
 	c.Type = PLUGIN_TYPE
 	c.Version = "1.0.0"
@@ -52,109 +48,25 @@ func withDefaults(c *FeeConfig) {
 	c.Jobs.Load.Cronexpr = "@every 2m"
 	c.Jobs.Transact.Cronexpr = "0 12 * * 5"
 	c.Jobs.Post.Cronexpr = "@every 5m"
+	return c
 }
 
-func WithMaxFeeAmount(maxFeeAmount uint64) ConfigOption {
-	return func(c *FeeConfig) error {
-		c.MaxFeeAmount = maxFeeAmount
-		return nil
-	}
-}
-
-func WithChainId(chainId *big.Int) ConfigOption {
-	return func(c *FeeConfig) error {
-		c.ChainId = chainId
-		return nil
-	}
-}
-
-func WithEthClient(url string) ConfigOption {
-	return func(c *FeeConfig) error {
-		c.EthProvider = url
-		return nil
-	}
-}
-
-func WithSuccessConfirmations(successConfirmations uint64) ConfigOption {
-	return func(c *FeeConfig) error {
-		c.Jobs.Post.SuccessConfirmations = successConfirmations
-		return nil
-	}
-}
-
-func WithJobConcurrency(load, transact, post uint64) ConfigOption {
-	return func(c *FeeConfig) error {
-		c.Jobs.Load.MaxConcurrentJobs = load
-		c.Jobs.Transact.MaxConcurrentJobs = transact
-		c.Jobs.Post.MaxConcurrentJobs = post
-		return nil
-	}
-}
-
-func WithCronexpr(load, transact, post string) ConfigOption {
-	return func(c *FeeConfig) error {
-		c.Jobs.Load.Cronexpr = load
-		c.Jobs.Transact.Cronexpr = transact
-		c.Jobs.Post.Cronexpr = post
-		return nil
-	}
-}
-
-func WithFileConfig(basePath string) ConfigOption {
-	return func(c *FeeConfig) error {
-
-		v := viper.New()
-		v.SetConfigName("fee")
-
-		// Add config paths in order of precedence
-		if basePath != "" {
-			v.AddConfigPath(basePath)
-		}
-		v.AddConfigPath(".")
-		v.AddConfigPath("/etc/vultisig")
-
-		// Enable environment variable overrides
-		v.AutomaticEnv()
-		v.SetEnvPrefix("FEES")
-		v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-
-		if err := v.ReadInConfig(); err != nil {
-			return fmt.Errorf("failed to read config: %w", err)
-		}
-
-		if err := v.Unmarshal(c); err != nil {
-			return fmt.Errorf("failed to unmarshal config: %w", err)
-		}
-
-		c.ChainId = big.NewInt(0).SetUint64(c.chainId)
-		return nil
-	}
-}
-
-func NewFeeConfig(fns ...ConfigOption) (*FeeConfig, error) {
-	c := &FeeConfig{}
-	withDefaults(c)
-	for _, fn := range fns {
-		if err := fn(c); err != nil {
-			return nil, err
-		}
-	}
-
+func (c *FeeConfig) Validate() error {
 	// Validate configuration
 	if c.Type != PLUGIN_TYPE {
-		return c, fmt.Errorf("invalid plugin type: %s", c.Type)
+		return fmt.Errorf("invalid plugin type: %s", c.Type)
 	}
 
 	if c.VerifierToken == "" {
-		return c, errors.New("verifier_token is required")
+		return errors.New("verifier_token is required")
 	}
 
 	if c.ChainId == nil {
-		return c, errors.New("chain_id is required")
+		return errors.New("chain_id is required")
 	}
 
 	if c.EthProvider == "" {
-		return c, errors.New("eth_provider is required")
+		return errors.New("eth_provider is required")
 	}
 
 	if c.Jobs.Load.MaxConcurrentJobs < 1 ||
@@ -163,29 +75,8 @@ func NewFeeConfig(fns ...ConfigOption) (*FeeConfig, error) {
 		c.Jobs.Transact.MaxConcurrentJobs > 100 ||
 		c.Jobs.Post.MaxConcurrentJobs < 1 ||
 		c.Jobs.Post.MaxConcurrentJobs > 100 {
-		return c, errors.New("max_concurrent_jobs must be greater than 0 and less than 100")
+		return errors.New("max_concurrent_jobs must be greater than 0 and less than 100")
 	}
 
-	return c, nil
-}
-
-/* Fee collection types
-Can be collected:
-   - by public key (all active plugins)
-   - by policy
-   - by plugin id
-*/
-
-type FeeCollectionType int
-
-const (
-	FeeCollectionTypeByPublicKey FeeCollectionType = iota
-	FeeCollectionTypeByPolicy
-	FeeCollectionTypeByPluginID
-	FeeCollectionTypeAll
-)
-
-type FeeCollectionFormat struct {
-	FeeCollectionType FeeCollectionType `json:"fee_collection_type"`
-	Value             string            `json:"value"` // will use this as the key value, should be empty string for FeeCollectionTypeAll
+	return nil
 }

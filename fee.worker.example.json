@@ -1,0 +1,35 @@
+{
+    "verifier": {
+        "url": "http://verifier:8080",
+        "token": "localhost-fee-apikey",
+        "party_prefix": "verifier"
+    },
+    "vault_service": {
+        "relay": {
+            "server": "https://api.vultisig.com/router"
+        },
+        "local_party_prefix": "vultisig-fees-feee",
+        "queue_email_task": false,
+        "encryption_secret": "test123",
+        "do_setup_msg": true
+    },
+    "redis": {
+        "host": "redis-fees",
+        "port": "6379",
+        "password": "password"
+    },
+    "block_storage": {
+        "host": "http://minio-plugin:9000",
+        "region": "us-east-1",
+        "access_key": "minioadmin",
+        "secret": "minioadmin",
+        "bucket": "vultisig-fee"
+    },
+    "base_config_path": "../../../etc/vultisig",
+    "database": {
+        "dsn": "postgres://myuser:mypassword@plugin-db:5432/vultisig-fee?sslmode=disable"
+    },
+    "fee_config": {
+      "eth_provider": "https://eth.llamarpc.com"
+    }
+}

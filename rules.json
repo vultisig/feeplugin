@@ -1,0 +1,116 @@
+{
+  "rules": [
+    {
+      "id": "native fee transfer",
+      "description": "native fee transfer to vultisig treasury",
+      "resource": "ethereum.send",
+      "target": {
+        "target_type": "TARGET_TYPE_ADDRESS",
+        "address": "0x0000000000000000000000000000000000000000"
+      },
+      "parameter_constraints": [
+        {
+          "parameter_name": "recipient",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_MAGIC_CONSTANT",
+            "magic_constant_value": "1",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "amount",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_ANY",
+            "denominated_in": "wei",
+            "required": true
+          }
+        }
+      ],
+      "effect": "EFFECT_ALLOW"
+    },
+    {
+      "id": "usdc fee transfer",
+      "description": "usdc fee transfer to vultisig treasury",
+      "resource": "ethereum.send",
+      "target": {
+        "target_type": "TARGET_TYPE_ADDRESS",
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "parameter_constraints": [
+        {
+          "parameter_name": "recipient",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_MAGIC_CONSTANT",
+            "magic_constant_value": "1",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "amount",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_ANY",
+            "required": true
+          }
+        }
+      ],
+      "effect": "EFFECT_ALLOW"
+    },
+    {
+      "id": "fee swap to usdc",
+      "description": "fee swap to usdc",
+      "resource": "ethereum.swap",
+      "target": {
+        "target_type": "TARGET_TYPE_ADDRESS",
+        "address": "0x111111125421cA6dc452d289314280a0f8842A65"
+      },
+      "parameter_constraints": [
+        {
+          "parameter_name": "from_asset",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_ANY",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "to_asset",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_FIXED",
+            "fixed_value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "from_address",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_ANY",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "to_address",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_MAGIC_CONSTANT",
+            "magic_constant_value": "1",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "from_amount",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_ANY",
+            "required": true
+          }
+        },
+        {
+          "parameter_name": "to_chain",
+          "constraint": {
+            "type": "CONSTRAINT_TYPE_FIXED",
+            "fixed_value": "3",
+            "required": true
+          }
+        }
+      ],
+      "effect": "EFFECT_ALLOW"
+    }
+  ]
+}

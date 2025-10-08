@@ -14,6 +14,8 @@ import (
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
 	"github.com/vultisig/verifier/vault"
+
+	"github.com/vultisig/feeplugin/internal/fee"
 )
 
 func main() {
@@ -94,47 +96,25 @@ func main() {
 		logger.Fatalf("failed to create vault service: %v", err)
 	}
 
-	//policyStorage, err := plugin.WithMigrations(
-	//	logger,
-	//	pgPool,
-	//	policy_pg.NewRepo,
-	//	"policy/policy_pg/migrations",
-	//)
-	//if err != nil {
-	//	logger.Fatalf("failed to initialize policy storage: %v", err)
-	//}
-	//
-	//schedulerStorage, err := plugin.WithMigrations(
-	//	logger,
-	//	pgPool,
-	//	scheduler_pg.NewRepo,
-	//	"scheduler/scheduler_pg/migrations",
-	//)
-	//if err != nil {
-	//	logger.Fatalf("failed to initialize scheduler storage: %v", err)
-	//}
+	feeConfig := fee.DefaultFeeConfig()
+	feeConfig.VerifierToken = cfg.Verifier.Token
+	feeConfig.EthProvider = cfg.FeeConfig.EthProvider
 
-	//policyService, err := policy.NewPolicyService(
-	//	policyStorage,
-	//	fee.NewSchedulerService(schedulerStorage),
-	//	logger,
-	//)
-	//if err != nil {
-	//	logger.Fatalf("failed to initialize policy service: %v", err)
-	//}
-	//
-	//signer := keysign.NewSigner(
-	//	logger,
-	//	relay.NewRelayClient(cfg.VaultServiceConfig.Relay.Server),
-	//	[]keysign.Emitter{
-	//		keysign.NewPluginEmitter(client, tasks.TypeKeySignDKLS, tasks.QUEUE_NAME),
-	//		keysign.NewVerifierEmitter(cfg.Verifier.URL, cfg.Verifier.Token),
-	//	},
-	//	[]string{
-	//		cfg.VaultServiceConfig.LocalPartyPrefix,
-	//		cfg.Verifier.PartyPrefix,
-	//	},
-	//)
+	err = feeConfig.Validate()
+	if err != nil {
+		logger.Fatalf("invalid fee config: %v", err)
+	}
+
+	feePlugin := fee.NewFeePlugin(
+		feeConfig,
+		logger,
+		vaultStorage,
+		cfg.VaultServiceConfig.EncryptionSecret,
+		txIndexerService,
+		cfg.Verifier.URL,
+	)
+
+	_ = feePlugin
 
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(tasks.TypeKeySignDKLS, vaultService.HandleKeySignDKLS)
