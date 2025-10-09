@@ -18,11 +18,7 @@ type FeeWorkerConfig struct {
 	VaultServiceConfig vault_config.Config       `mapstructure:"vault_service" json:"vault_service,omitempty"`
 	BaseConfigPath     string                    `mapstructure:"base_config_path" json:"base_config_path,omitempty"`
 	Database           config.Database           `mapstructure:"database" json:"database,omitempty"`
-	Datadog            struct {
-		Host string `mapstructure:"host" json:"host,omitempty"`
-		Port string `mapstructure:"port" json:"port,omitempty"`
-	} `mapstructure:"datadog" json:"datadog"`
-	FeeConfig fee.FeeConfig `mapstructure:"fee_config" json:"fee_config,omitempty"`
+	FeeConfig          fee.FeeConfig             `mapstructure:"fee_config" json:"fee_config,omitempty"`
 }
 
 func GetConfigure() (*FeeWorkerConfig, error) {
