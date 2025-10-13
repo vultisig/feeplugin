@@ -14,12 +14,12 @@
         "do_setup_msg": true
     },
     "redis": {
-        "host": "redis-fees",
-        "port": "6379",
+        "host": "localhost",
+        "port": "6377",
         "password": "password"
     },
     "block_storage": {
-        "host": "http://minio-plugin:9000",
+        "host": "http://localhost:9200",
         "region": "us-east-1",
         "access_key": "minioadmin",
         "secret": "minioadmin",
@@ -27,7 +27,7 @@
     },
     "base_config_path": "../../../etc/vultisig",
     "database": {
-        "dsn": "postgres://myuser:mypassword@plugin-db:5432/vultisig-fee?sslmode=disable"
+        "dsn": "postgres://myuser:mypassword@plugin-db:5430/vultisig-fee?sslmode=disable"
     },
     "fee_config": {
       "eth_provider": "https://eth.llamarpc.com"

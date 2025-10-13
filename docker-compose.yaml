@@ -1,0 +1,57 @@
+services:
+  fee-db: # One DB instance for all plugins, which point to different databases
+    image: postgres:15
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: vultisig-fee
+    ports:
+      - "5430:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "vultisig-fee", "-U", "myuser" ]
+      interval: 1s
+      timeout: 5s
+      retries: 3
+    networks:
+      - shared_network
+
+  redis-fees:
+    image: redis:latest
+    ports:
+      - "6377:6379"
+    networks:
+      - shared_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - redis_fees:/data
+
+  minio-fee:
+    build:
+      context: .
+      dockerfile: Dockerfile.minio
+      platforms:
+        - linux/amd64
+    ports:
+      - "9200:9000" # s3 api
+      - "9092:9090" # console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    networks:
+      - shared_network
+
+volumes:
+  db_data:
+  minio_data:
+  redis_fees:
+networks:
+  shared_network:
+    external: true
