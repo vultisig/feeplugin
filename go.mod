@@ -10,7 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.21.0
 	github.com/vultisig/recipes v0.0.0-20251006192813-52d88afe31bb
-	github.com/vultisig/verifier v0.0.0-20251009160043-6af9d46ae9c6
+	github.com/vultisig/verifier v0.0.0-20251013074404-735eb2001d6e
 )
 
 require (
