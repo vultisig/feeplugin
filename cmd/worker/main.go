@@ -5,7 +5,6 @@ import (
 	"net"
 	"os"
 
-	"github.com/DataDog/datadog-go/statsd"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
@@ -31,10 +30,6 @@ func main() {
 		logger.Fatalf("failed to load config: %v", err)
 	}
 
-	sdClient, err := statsd.New(cfg.Datadog.Host + ":" + cfg.Datadog.Port)
-	if err != nil {
-		logger.Fatalf("failed to initialize StatsD client: %v", err)
-	}
 	vaultStorage, err := vault.NewBlockStorageImp(cfg.BlockStorage)
 	if err != nil {
 		logger.Fatalf("failed to initialize vault storage: %v", err)
@@ -88,7 +83,6 @@ func main() {
 	vaultService, err := vault.NewManagementService(
 		cfg.VaultServiceConfig,
 		client,
-		sdClient,
 		vaultStorage,
 		txIndexerService,
 	)
