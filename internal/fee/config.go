@@ -3,7 +3,6 @@ package fee
 import (
 	"errors"
 	"fmt"
-	"math/big"
 )
 
 // These are properties and parameters specific to the fee plugin config. They should be distinct from system/core config
@@ -13,9 +12,8 @@ type FeeConfig struct {
 	MaxFeeAmount  uint64 `mapstructure:"max_fee_amount,omitempty"` // Policies that are created/submitted which do not have this amount will be rejected.
 	UsdcAddress   string `mapstructure:"usdc_address,omitempty"`   // The address of the USDC token on the Ethereum blockchain.
 	VerifierToken string `mapstructure:"verifier_token,omitempty"` // The token to use for the verifier API.
-	chainId       uint64 `mapstructure:"chain_id,omitempty"`       // The chain ID of the Ethereum blockchain.
-	ChainId       *big.Int
-	EthProvider   string `mapstructure:"eth_provider,omitempty"` // The Ethereum provider to use for the fee plugin.
+	ChainId       uint64 `mapstructure:"chain_id,omitempty"`       // The chain ID of the Ethereum blockchain.
+	EthProvider   string `mapstructure:"eth_provider,omitempty"`   // The Ethereum provider to use for the fee plugin.
 	Jobs          struct {
 		Load struct {
 			MaxConcurrentJobs uint64 `mapstructure:"max_concurrent_jobs,omitempty"` //How many consecutive tasks can take place
@@ -35,7 +33,7 @@ type FeeConfig struct {
 
 func DefaultFeeConfig() *FeeConfig {
 	c := new(FeeConfig)
-	c.ChainId = big.NewInt(1)
+	c.ChainId = 1
 	c.Type = PLUGIN_TYPE
 	c.Version = "1.0.0"
 	c.MaxFeeAmount = 500e6 // 500 USDC
@@ -61,7 +59,7 @@ func (c *FeeConfig) Validate() error {
 		return errors.New("verifier_token is required")
 	}
 
-	if c.ChainId == nil {
+	if c.ChainId == 0 {
 		return errors.New("chain_id is required")
 	}
 
