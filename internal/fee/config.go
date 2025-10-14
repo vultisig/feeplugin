@@ -8,28 +8,28 @@ import (
 
 // These are properties and parameters specific to the fee plugin config. They should be distinct from system/core config
 type FeeConfig struct {
-	Type          string `mapstructure:"type"`
-	Version       string `mapstructure:"version"`
-	MaxFeeAmount  uint64 `mapstructure:"max_fee_amount"` // Policies that are created/submitted which do not have this amount will be rejected.
-	UsdcAddress   string `mapstructure:"usdc_address"`   // The address of the USDC token on the Ethereum blockchain.
-	VerifierToken string `mapstructure:"verifier_token"` // The token to use for the verifier API.
-	chainId       uint64 `mapstructure:"chain_id"`       // The chain ID of the Ethereum blockchain.
+	Type          string `mapstructure:"type,omitempty"`
+	Version       string `mapstructure:"version,omitempty"`
+	MaxFeeAmount  uint64 `mapstructure:"max_fee_amount,omitempty"` // Policies that are created/submitted which do not have this amount will be rejected.
+	UsdcAddress   string `mapstructure:"usdc_address,omitempty"`   // The address of the USDC token on the Ethereum blockchain.
+	VerifierToken string `mapstructure:"verifier_token,omitempty"` // The token to use for the verifier API.
+	chainId       uint64 `mapstructure:"chain_id,omitempty"`       // The chain ID of the Ethereum blockchain.
 	ChainId       *big.Int
-	EthProvider   string `mapstructure:"eth_provider"` // The Ethereum provider to use for the fee plugin.
+	EthProvider   string `mapstructure:"eth_provider,omitempty"` // The Ethereum provider to use for the fee plugin.
 	Jobs          struct {
 		Load struct {
-			MaxConcurrentJobs uint64 `mapstructure:"max_concurrent_jobs"` //How many consecutive tasks can take place
-			Cronexpr          string `mapstructure:"cronexpr"`            // Cron link expression on how often these tasks should run
-		} `mapstructure:"load"`
+			MaxConcurrentJobs uint64 `mapstructure:"max_concurrent_jobs,omitempty"` //How many consecutive tasks can take place
+			Cronexpr          string `mapstructure:"cronexpr,omitempty"`            // Cron link expression on how often these tasks should run
+		} `mapstructure:"load,omitempty"`
 		Transact struct {
-			MaxConcurrentJobs uint64 `mapstructure:"max_concurrent_jobs"` //How many consecutive tasks can take place
-			Cronexpr          string `mapstructure:"cronexpr"`            // Cron link expression on how often these tasks should run
-		} `mapstructure:"transact"`
+			MaxConcurrentJobs uint64 `mapstructure:"max_concurrent_jobs,omitempty"` //How many consecutive tasks can take place
+			Cronexpr          string `mapstructure:"cronexpr,omitempty"`            // Cron link expression on how often these tasks should run
+		} `mapstructure:"transact,omitempty"`
 		Post struct {
-			SuccessConfirmations uint64 `mapstructure:"success_confirmations"` //How many consecutive tasks can take place
-			Cronexpr             string `mapstructure:"cronexpr"`              // Cron link expression on how often these tasks should run
-			MaxConcurrentJobs    uint64 `mapstructure:"max_concurrent_jobs"`
-		} `mapstructure:"post"`
+			SuccessConfirmations uint64 `mapstructure:"success_confirmations,omitempty"` //How many consecutive tasks can take place
+			Cronexpr             string `mapstructure:"cronexpr,omitempty"`              // Cron link expression on how often these tasks should run
+			MaxConcurrentJobs    uint64 `mapstructure:"max_concurrent_jobs,omitempty"`
+		} `mapstructure:"post,omitempty"`
 	}
 }
 
