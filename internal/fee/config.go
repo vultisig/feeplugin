@@ -63,9 +63,9 @@ func (c *FeeConfig) Validate() error {
 		return errors.New("chain_id is required")
 	}
 
-	if c.EthProvider == "" {
-		return errors.New("eth_provider is required")
-	}
+	//if c.EthProvider == "" {
+	//	return errors.New("eth_provider is required")
+	//}
 
 	if c.Jobs.Load.MaxConcurrentJobs < 1 ||
 		c.Jobs.Load.MaxConcurrentJobs > 100 ||
