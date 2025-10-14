@@ -1,0 +1,40 @@
+app = 'fee-plugin-dev'
+primary_region = 'nrt'
+
+[build]
+[build.args]
+GO_VERSION = '1.24.6'
+
+[env]
+PORT = '8080'
+
+[processes]
+server = "server"
+worker = "worker"
+tx_indexer = "tx_indexer"
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 0
+processes = ['server']
+
+[[vm]]
+memory = '2gb'
+cpu_kind = 'shared'
+cpus = 2
+processes = ['server']
+
+[[vm]]
+memory = '2gb'
+cpu_kind = 'shared'
+cpus = 2
+processes = ['worker']
+
+[[vm]]
+memory = '2gb'
+cpu_kind = 'shared'
+cpus = 2
+processes = ['tx_indexer']
