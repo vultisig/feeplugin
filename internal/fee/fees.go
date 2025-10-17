@@ -49,7 +49,7 @@ func NewFeePlugin(
 
 // Policy creation is not expected for this plugin
 func (fp *FeePlugin) GetRecipeSpecification() (*rtypes.RecipeSchema, error) {
-	return nil, errors.New("not implemented")
+	return nil, nil
 }
 
 func (fp *FeePlugin) ValidatePluginPolicy(policyDoc vtypes.PluginPolicy) error {
