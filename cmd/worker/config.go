@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vultisig/feeplugin/internal/fee"
@@ -20,6 +21,7 @@ type FeeWorkerConfig struct {
 	BaseConfigPath     string                    `mapstructure:"base_config_path" json:"base_config_path,omitempty"`
 	Database           config.Database           `mapstructure:"database" json:"database,omitempty"`
 	FeeConfig          fee.FeeConfig             `mapstructure:"fee_config" json:"fee_config,omitempty"`
+	ProcessingInterval time.Duration             `mapstructure:"processing_interval" json:"processing_interval,omitempty"`
 }
 
 func GetConfigure() (*FeeWorkerConfig, error) {
@@ -53,7 +55,6 @@ func ReadConfig(configName string) (*FeeWorkerConfig, error) {
 	}
 	return &cfg, nil
 }
-
 
 func addKeysToViper(v *viper.Viper, t reflect.Type) {
 	keys := getAllKeys(t)

@@ -2,36 +2,40 @@ package fee
 
 import (
 	"context"
-	"errors"
+	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/vultisig/feeplugin/internal/verifierapi"
-	rtypes "github.com/vultisig/recipes/types"
-	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
-	vtypes "github.com/vultisig/verifier/types"
 	"github.com/vultisig/verifier/vault"
-)
 
-var _ plugin.Spec = (*FeePlugin)(nil)
+	"github.com/vultisig/feeplugin/internal/storage"
+	"github.com/vultisig/feeplugin/internal/verifierapi"
+)
 
 type FeePlugin struct {
 	logger                *logrus.Logger
+	vaultService          *vault.ManagementService
 	vault                 vault.Storage
 	vaultEncryptionSecret string
 	txIndexerService      *tx_indexer.Service
 	verifierApi           *verifierapi.VerifierApi
+	db                    storage.DatabaseStorage
 	config                *FeeConfig
 	encryptionSecret      string
+	processingInterval    time.Duration
 }
 
 func NewFeePlugin(
 	config *FeeConfig,
 	logger *logrus.Logger,
+	vaultService *vault.ManagementService,
 	vault vault.Storage,
 	vaultSecret string,
 	txIndexerService *tx_indexer.Service,
-	verifierUrl string) *FeePlugin {
+	db storage.DatabaseStorage,
+	verifierUrl string,
+	pi time.Duration) *FeePlugin {
 	verifierApi := verifierapi.NewVerifierApi(
 		verifierUrl,
 		config.VerifierToken,
@@ -40,25 +44,54 @@ func NewFeePlugin(
 	return &FeePlugin{
 		config:                config,
 		logger:                logger.WithField("pkg", "fee").Logger,
+		vaultService:          vaultService,
 		vault:                 vault,
 		vaultEncryptionSecret: vaultSecret,
 		txIndexerService:      txIndexerService,
+		db:                    db,
 		verifierApi:           verifierApi,
+		processingInterval:    pi,
 	}
 }
 
-// Policy creation is not expected for this plugin
-func (fp *FeePlugin) GetRecipeSpecification() (*rtypes.RecipeSchema, error) {
-	return nil, nil
+func (fp *FeePlugin) Run(ctx context.Context) {
+	if fp.processingInterval == 0 {
+		fp.processingInterval = 5 * time.Minute
+	}
+	ticker := time.NewTicker(fp.processingInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			err := fp.ProcessFees(ctx)
+			if err != nil {
+				fp.logger.WithError(err).Error("failed to process fees")
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
 }
 
-func (fp *FeePlugin) ValidatePluginPolicy(policyDoc vtypes.PluginPolicy) error {
-	return errors.New("not implemented")
-}
+func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
+	fp.logger.Info("processing fees")
+	pks, err := fp.db.GetPublicKeys(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get public keys: %w", err)
+	}
+	for _, pk := range pks {
+		fees, err := fp.verifierApi.GetPublicKeysFees(pk)
+		if err != nil {
+			return fmt.Errorf("failed to get fees: %w", err)
+		}
 
-// Suggest implements plugin.Spec.
-func (fp *FeePlugin) Suggest(configuration map[string]any) (*rtypes.PolicySuggest, error) {
-	return nil, errors.New("not implemented")
+		for _, fee := range fees {
+			fp.logger.Info("processing fee %s", fee)
+		}
+	}
+
+	return nil
 }
 
 func (fp *FeePlugin) executeFeeTransaction(ctx context.Context, publickey string) error {

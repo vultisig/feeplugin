@@ -8,6 +8,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
+
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/tasks"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
@@ -15,6 +16,7 @@ import (
 	"github.com/vultisig/verifier/vault"
 
 	"github.com/vultisig/feeplugin/internal/fee"
+	"github.com/vultisig/feeplugin/internal/storage/postgres"
 )
 
 func main() {
@@ -53,6 +55,10 @@ func main() {
 			},
 		},
 	)
+	db, err := postgres.NewPostgresBackend(logger, cfg.Database.DSN)
+	if err != nil {
+		logger.Fatalf("Failed to connect to database: %v", err)
+	}
 
 	pgPool, err := pgxpool.New(ctx, cfg.Database.DSN)
 	if err != nil {
@@ -102,17 +108,20 @@ func main() {
 	feePlugin := fee.NewFeePlugin(
 		feeConfig,
 		logger,
+		vaultService,
 		vaultStorage,
 		cfg.VaultServiceConfig.EncryptionSecret,
 		txIndexerService,
+		db,
 		cfg.Verifier.URL,
+		cfg.ProcessingInterval,
 	)
 
-	_ = feePlugin
+	go feePlugin.Run(ctx)
 
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(tasks.TypeKeySignDKLS, vaultService.HandleKeySignDKLS)
-	mux.HandleFunc(tasks.TypeReshareDKLS, vaultService.HandleReshareDKLS)
+	mux.HandleFunc(tasks.TypeReshareDKLS, feePlugin.HandleReshareDKLS)
 	err = consumer.Run(mux)
 	if err != nil {
 		logger.Fatalf("failed to run consumer: %v", err)
