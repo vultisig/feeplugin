@@ -75,7 +75,6 @@ func (fp *FeePlugin) Run(ctx context.Context) {
 }
 
 func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
-	fp.logger.Info("processing fees")
 	pks, err := fp.db.GetPublicKeys(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get public keys: %w", err)
@@ -87,7 +86,7 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 		}
 
 		for _, fee := range fees {
-			fp.logger.Info("processing fee %s", fee)
+			fp.logger.Info("processing fee:", fee)
 		}
 	}
 
