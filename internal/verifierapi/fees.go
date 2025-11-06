@@ -38,7 +38,7 @@ func (v *VerifierApi) GetPublicKeysFees(ecdsaPublicKey string) ([]*types.Fee, er
 	return feeHistory.Data, nil
 }
 
-func (v *VerifierApi) MarkFeeAsCollected(txHash, network string, amount uint64, feeIds ...uint64) error {
+func (v *VerifierApi) MarkFeeAsCollected(amount uint64, txHash, network string, feeIds ...uint64) error {
 
 	var body = struct {
 		ID      uint64 `json:"id"`
