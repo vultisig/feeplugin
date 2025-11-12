@@ -2,19 +2,25 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
+
 	"github.com/vultisig/verifier/plugin"
+	"github.com/vultisig/verifier/plugin/keysign"
 	"github.com/vultisig/verifier/plugin/tasks"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
 	"github.com/vultisig/verifier/vault"
+	"github.com/vultisig/vultisig-go/relay"
 
 	"github.com/vultisig/feeplugin/internal/fee"
+	"github.com/vultisig/feeplugin/internal/storage/postgres"
 )
 
 func main() {
@@ -53,6 +59,10 @@ func main() {
 			},
 		},
 	)
+	db, err := postgres.NewPostgresBackend(logger, cfg.Database.DSN)
+	if err != nil {
+		logger.Fatalf("Failed to connect to database: %v", err)
+	}
 
 	pgPool, err := pgxpool.New(ctx, cfg.Database.DSN)
 	if err != nil {
@@ -74,6 +84,11 @@ func main() {
 		logger.Fatalf("failed to get supported chains: %v", err)
 	}
 
+	rpcClient, err := ethclient.Dial(cfg.FeeConfig.EthProvider)
+	if err != nil {
+		panic(fmt.Errorf("failed to create eth client: %w", err))
+	}
+
 	txIndexerService := tx_indexer.NewService(
 		logger,
 		txStorage,
@@ -93,26 +108,47 @@ func main() {
 	feeConfig := fee.DefaultFeeConfig()
 	feeConfig.VerifierToken = cfg.Verifier.Token
 	feeConfig.EthProvider = cfg.FeeConfig.EthProvider
+	feeConfig.TreasuryAddress = cfg.FeeConfig.TreasuryAddress
+	feeConfig.UsdcAddress = cfg.FeeConfig.UsdcAddress
 
 	err = feeConfig.Validate()
 	if err != nil {
 		logger.Fatalf("invalid fee config: %v", err)
 	}
 
-	feePlugin := fee.NewFeePlugin(
+	feePlugin, err := fee.NewFeePlugin(
 		feeConfig,
 		logger,
+		vaultService,
 		vaultStorage,
 		cfg.VaultServiceConfig.EncryptionSecret,
+		rpcClient,
+		keysign.NewSigner(
+			logger.WithField("pkg", "keysign.Signer").Logger,
+			relay.NewRelayClient(cfg.VaultServiceConfig.Relay.Server),
+			[]keysign.Emitter{
+				keysign.NewVerifierEmitter(cfg.Verifier.URL, cfg.Verifier.Token),
+				keysign.NewPluginEmitter(client, tasks.TypeKeySignDKLS, tasks.QUEUE_NAME),
+			},
+			[]string{
+				cfg.Verifier.PartyPrefix,
+				cfg.VaultServiceConfig.LocalPartyPrefix,
+			},
+		),
 		txIndexerService,
+		db,
 		cfg.Verifier.URL,
+		cfg.ProcessingInterval,
 	)
+	if err != nil {
+		logger.Fatalf("failed to initialize feePlugin: %v", err)
+	}
 
-	_ = feePlugin
+	go feePlugin.Run(ctx)
 
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(tasks.TypeKeySignDKLS, vaultService.HandleKeySignDKLS)
-	mux.HandleFunc(tasks.TypeReshareDKLS, vaultService.HandleReshareDKLS)
+	mux.HandleFunc(tasks.TypeReshareDKLS, feePlugin.HandleReshareDKLS)
 	err = consumer.Run(mux)
 	if err != nil {
 		logger.Fatalf("failed to run consumer: %v", err)

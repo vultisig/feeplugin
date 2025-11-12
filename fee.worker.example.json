@@ -1,35 +1,38 @@
 {
-    "verifier": {
-        "url": "http://verifier:8080",
-        "token": "localhost-fee-apikey",
-        "party_prefix": "verifier"
+  "verifier": {
+    "url": "http://localhost:8080",
+    "token": "localhost-fee-apikey",
+    "party_prefix": "verifier"
+  },
+  "vault_service": {
+    "relay": {
+      "server": "https://api.vultisig.com/router"
     },
-    "vault_service": {
-        "relay": {
-            "server": "https://api.vultisig.com/router"
-        },
-        "local_party_prefix": "vultisig-fees-feee",
-        "queue_email_task": false,
-        "encryption_secret": "test123",
-        "do_setup_msg": true
-    },
-    "redis": {
-        "host": "localhost",
-        "port": "6379",
-        "password": "password"
-    },
-    "block_storage": {
-        "host": "http://localhost:9200",
-        "region": "us-east-1",
-        "access_key": "minioadmin",
-        "secret": "minioadmin",
-        "bucket": "vultisig-fee"
-    },
-    "base_config_path": "../../../etc/vultisig",
-    "database": {
-        "dsn": "postgres://myuser:mypassword@plugin-db:5430/vultisig-fee?sslmode=disable"
-    },
-    "fee_config": {
-      "eth_provider": "https://eth.llamarpc.com"
-    }
+    "local_party_prefix": "vultisig-fees-feee",
+    "queue_email_task": false,
+    "encryption_secret": "test123",
+    "do_setup_msg": true
+  },
+  "redis": {
+    "host": "localhost",
+    "port": "6377",
+    "password": "password"
+  },
+  "block_storage": {
+    "host": "http://localhost:9200",
+    "region": "us-east-1",
+    "access_key": "minioadmin",
+    "secret": "minioadmin",
+    "bucket": "vultisig-fee"
+  },
+  "base_config_path": "../../../etc/vultisig",
+  "database": {
+    "dsn": "postgres://myuser:mypassword@plugin-db:5430/vultisig-fee?sslmode=disable"
+  },
+  "fee_config": {
+    "eth_provider": "https://ethereum-rpc.publicnode.com",
+    "usdc_address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "treasury_address": "0x8E247a480449c84a5fDD25974A8501f3EFa4ABb9"
+  },
+  "processing_interval": "2m"
 }
