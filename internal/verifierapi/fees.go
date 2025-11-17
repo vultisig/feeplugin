@@ -41,12 +41,12 @@ func (v *VerifierApi) GetPublicKeysFees(ecdsaPublicKey string) ([]*types.Fee, er
 func (v *VerifierApi) MarkFeeAsCollected(amount uint64, txHash, network string, feeIds ...uint64) error {
 
 	var body = struct {
-		ID      uint64 `json:"id"`
-		TxHash  string `json:"tx_hash"`
-		Network string `json:"network"`
-		Amount  uint64 `json:"amount"`
+		ID      []uint64 `json:"ids"`
+		TxHash  string   `json:"tx_hash"`
+		Network string   `json:"network"`
+		Amount  uint64   `json:"amount"`
 	}{
-		ID:      feeIds[0],
+		ID:      feeIds,
 		TxHash:  txHash,
 		Network: network,
 		Amount:  amount,
