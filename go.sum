@@ -1013,8 +1013,8 @@ github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74 h1:goqwk4n
 github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74/go.mod h1:nOykk4nOy1L3yXtLSlYvVsgizBnCQ3tR2N5uwGPdvaM=
 github.com/vultisig/recipes v0.0.0-20251110144225-8d92cf257944 h1:lHaPUQNDJVY39zKkjsqaq5m6b4aqUIIezBGi7NxBpZg=
 github.com/vultisig/recipes v0.0.0-20251110144225-8d92cf257944/go.mod h1:gYRvnnDwj04CqNawzAZky0Do63Cmdf1RN9rNbcQqPUE=
-github.com/vultisig/verifier v0.0.0-20251112074419-fabe16c5c1c0 h1:kZia1Wfg8VTj7MAtzuMq2vmuYxaUFycudWLvD834m4U=
-github.com/vultisig/verifier v0.0.0-20251112074419-fabe16c5c1c0/go.mod h1:uxHjOhhjWbnxV5++NCN7eT0pEkKJRhHRWQ3/h774Dik=
+github.com/vultisig/verifier v0.0.0-20251117161551-503b12f3dc62 h1:IzVR5bgkX+QXJXW8ZvlA/yGIT5eQa9DUdxlM1wVVRXg=
+github.com/vultisig/verifier v0.0.0-20251117161551-503b12f3dc62/go.mod h1:uxHjOhhjWbnxV5++NCN7eT0pEkKJRhHRWQ3/h774Dik=
 github.com/vultisig/vultiserver v0.0.0-20250825042420-c6e6ac281110 h1:7WDQ92FAdu08Byjgm3RNS8Sok49sK521PzPcbRpbzCE=
 github.com/vultisig/vultiserver v0.0.0-20250825042420-c6e6ac281110/go.mod h1:HwP2IgW6Mcu/gX8paFuKvfibrGE9UmPgkOFTub6dskM=
 github.com/vultisig/vultisig-go v0.0.0-20251004125942-60b3b1898d15 h1:wdRFnDMLdbaWXExUR/88WBAZ9sY9i9ldzurrYJWQeuw=
