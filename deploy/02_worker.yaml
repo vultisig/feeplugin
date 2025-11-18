@@ -100,21 +100,11 @@ spec:
                 secretKeyRef:
                   name: postgres
                   key: dsn
-            - name: REDIS_HOST
+            - name: REDIS_URI
               valueFrom:
                 secretKeyRef:
                   name: redis
-                  key: host
-            - name: REDIS_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: redis
-                  key: port
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis
-                  key: password
+                  key: uri
           resources:
             requests:
               memory: "32Mi"

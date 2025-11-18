@@ -8,7 +8,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   CLUSTER: plugins-prod-cluster
-  NS: feeplugin
+  NS: plugin-fee
 
 jobs:
   build-server:

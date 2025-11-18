@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
 	"os"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -42,16 +41,14 @@ func main() {
 		logger.Fatalf("failed to initialize vault storage: %v", err)
 	}
 
-	redisOptions := asynq.RedisClientOpt{
-		Addr:     net.JoinHostPort(cfg.Redis.Host, cfg.Redis.Port),
-		Username: cfg.Redis.User,
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
+	redisConnOpt, err := asynq.ParseRedisURI(cfg.Redis.URI)
+	if err != nil {
+		logger.Fatalf("failed to parse redis URI: %v", err)
 	}
 
-	client := asynq.NewClient(redisOptions)
+	client := asynq.NewClient(redisConnOpt)
 	consumer := asynq.NewServer(
-		redisOptions,
+		redisConnOpt,
 		asynq.Config{
 			Logger:      logger,
 			Concurrency: 10,

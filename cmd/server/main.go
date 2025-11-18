@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,16 +38,13 @@ func main() {
 		logger.Fatalf("failed to initialize Redis client: %v", err)
 	}
 
-	asynqClient := asynq.NewClient(asynq.RedisClientOpt{
-		Addr:     net.JoinHostPort(cfg.Redis.Host, cfg.Redis.Port),
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
-	})
-	asynqInspector := asynq.NewInspector(asynq.RedisClientOpt{
-		Addr:     net.JoinHostPort(cfg.Redis.Host, cfg.Redis.Port),
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
-	})
+	asynqConnOpt, err := asynq.ParseRedisURI(cfg.Redis.URI)
+	if err != nil {
+		logger.Fatalf("failed to parse redis URI: %v", err)
+	}
+
+	asynqClient := asynq.NewClient(asynqConnOpt)
+	asynqInspector := asynq.NewInspector(asynqConnOpt)
 
 	vaultStorage, err := vault.NewBlockStorageImp(cfg.BlockStorage)
 	if err != nil {
