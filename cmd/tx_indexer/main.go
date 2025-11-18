@@ -62,9 +62,9 @@ func main() {
 
 	healthServer := health.New(cfg.HealthPort)
 	go func() {
-		er := healthServer.Start(ctx, logger)
-		if er != nil {
-			logger.Errorf("health server failed: %v", er)
+		err = healthServer.Start(ctx, logger)
+		if err != nil {
+			logger.Errorf("health server failed: %v", err)
 		}
 	}()
 
@@ -82,16 +82,16 @@ func main() {
 	}
 }
 
-type Config struct {
+type indexerConfig struct {
 	HealthPort int `envconfig:"health_port" default:"80"`
 	config.Config
 }
 
-func newConfig() (Config, error) {
-	var cfg Config
+func newConfig() (indexerConfig, error) {
+	var cfg indexerConfig
 	err := envconfig.Process("", &cfg)
 	if err != nil {
-		return Config{}, fmt.Errorf("failed to process env var: %w", err)
+		return indexerConfig{}, fmt.Errorf("failed to process env var: %w", err)
 	}
 	return cfg, nil
 }

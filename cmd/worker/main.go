@@ -144,9 +144,9 @@ func main() {
 
 	healthServer := health.New(cfg.HealthPort)
 	go func() {
-		er := healthServer.Start(ctx, logger)
-		if er != nil {
-			logger.Errorf("health server failed: %v", er)
+		err = healthServer.Start(ctx, logger)
+		if err != nil {
+			logger.Errorf("health server failed: %v", err)
 		}
 	}()
 
