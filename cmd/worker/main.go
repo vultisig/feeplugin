@@ -10,6 +10,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
+	"github.com/vultisig/feeplugin/internal/health"
 
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/keysign"
@@ -143,6 +144,14 @@ func main() {
 	if err != nil {
 		logger.Fatalf("failed to initialize feePlugin: %v", err)
 	}
+
+	healthServer := health.New(cfg.HealthPort)
+	go func() {
+		er := healthServer.Start(ctx, logger)
+		if er != nil {
+			logger.Errorf("health server failed: %v", er)
+		}
+	}()
 
 	go feePlugin.Run(ctx)
 

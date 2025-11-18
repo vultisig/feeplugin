@@ -22,6 +22,7 @@ type FeeWorkerConfig struct {
 	Database           config.Database           `mapstructure:"database" json:"database,omitempty"`
 	FeeConfig          fee.FeeConfig             `mapstructure:"fee_config" json:"fee_config,omitempty"`
 	ProcessingInterval time.Duration             `mapstructure:"processing_interval" json:"processing_interval,omitempty"`
+	HealthPort         int                       `mapstructure:"health_port" json:"health_port,omitempty"`
 }
 
 func GetConfigure() (*FeeWorkerConfig, error) {

@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: feeplugin
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: fee.lb-1.plugins-cluster.nbitslabs.com
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: server
+                port:
+                  number: 80
