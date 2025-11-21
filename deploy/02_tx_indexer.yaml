@@ -24,7 +24,7 @@ spec:
             - containerPort: 80
               name: health
           env:
-            - name: HEALTHPORT
+            - name: HEALTH_PORT
               value: "80"
             - name: RPC_ETHEREUM_URL
               valueFrom:
@@ -33,9 +33,9 @@ spec:
                   key: ethereum
             - name: INTERVAL
               value: "30s"
-            - name: ITERATIONTIMEOUT
+            - name: ITERATION_TIMEOUT
               value: "30s"
-            - name: MARKLOSTAFTER
+            - name: MARK_LOST_AFTER
               value: "2h"
             - name: CONCURRENCY
               value: "5"

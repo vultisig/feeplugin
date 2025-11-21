@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: address
+data:
+  usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+  treasury: "0x8E247a480449c84a5fDD25974A8501f3EFa4ABb9"

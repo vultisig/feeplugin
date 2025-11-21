@@ -49,27 +49,27 @@ spec:
                 secretKeyRef:
                   name: encryption
                   key: secret
-            - name: BLOCKSTORAGE_HOST
+            - name: BLOCK_STORAGE_HOST
               valueFrom:
                 configMapKeyRef:
                   name: minio
                   key: host
-            - name: BLOCKSTORAGE_REGION
+            - name: BLOCK_STORAGE_REGION
               valueFrom:
                 configMapKeyRef:
                   name: minio
                   key: region
-            - name: BLOCKSTORAGE_ACCESSKEY
+            - name: BLOCK_STORAGE_ACCESSKEY
               valueFrom:
                 secretKeyRef:
                   name: minio
                   key: root-user
-            - name: BLOCKSTORAGE_SECRET
+            - name: BLOCK_STORAGE_SECRET
               valueFrom:
                 secretKeyRef:
                   name: minio
                   key: root-password
-            - name: BLOCKSTORAGE_BUCKET
+            - name: BLOCK_STORAGE_BUCKET
               valueFrom:
                 configMapKeyRef:
                   name: minio

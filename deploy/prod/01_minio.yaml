@@ -5,4 +5,4 @@ metadata:
 data:
   host: "https://sgp1.digitaloceanspaces.com"
   region: "us-east-1"
-  bucket: "vs-fee-1"
+  bucket: "vs-fees"

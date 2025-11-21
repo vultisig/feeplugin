@@ -24,21 +24,23 @@ spec:
             - containerPort: 80
               name: health
           env:
-            - name: HEALTHPORT
+            - name: HEALTH_PORT
               value: "80"
-            - name: VAULTSERVICE_RELAY_SERVER
+            - name: PROCESSING_INTERVAL
+              value: "2m"
+            - name: VAULT_SERVICE_RELAY_SERVER
               valueFrom:
                 configMapKeyRef:
                   name: relay
                   key: url
-            - name: VAULTSERVICE_LOCALPARTYPREFIX
+            - name: VAULT_SERVICE_LOCAL_PARTY_PREFIX
               value: "vultisig-fees-feee"
-            - name: VAULTSERVICE_ENCRYPTIONSECRET
+            - name: VAULT_SERVICE_ENCRYPTION_SECRET
               valueFrom:
                 secretKeyRef:
                   name: encryption
                   key: secret
-            - name: VAULTSERVICE_DOSETUPMSG
+            - name: VAULT_SERVICE_DO_SETUP_MSG
               value: "true"
             - name: VERIFIER_URL
               valueFrom:
@@ -50,47 +52,47 @@ spec:
                 secretKeyRef:
                   name: verifier
                   key: token
-            - name: VERIFIER_PARTYPREFIX
+            - name: VERIFIER_PARTY_PREFIX
               valueFrom:
                 configMapKeyRef:
                   name: verifier
                   key: party-prefix
-            - name: FEECONFIG_ETHPROVIDER
+            - name: FEE_CONFIG_ETH_PROVIDER
               valueFrom:
                 configMapKeyRef:
                   name: rpc
                   key: ethereum
-            - name: FEECONFIG_USDCADDRESS
+            - name: FEE_CONFIG_USDC_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: fee-config
-                  key: usdc-address
-            - name: FEECONFIG_TREASURYADDRESS
+                  name: address
+                  key: usdc
+            - name: FEE_CONFIG_TREASURY_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: fee-config
-                  key: treasury-address
-            - name: BLOCKSTORAGE_HOST
+                  name: address
+                  key: treasury
+            - name: BLOCK_STORAGE_HOST
               valueFrom:
                 configMapKeyRef:
                   name: minio
                   key: host
-            - name: BLOCKSTORAGE_REGION
+            - name: BLOCK_STORAGE_REGION
               valueFrom:
                 configMapKeyRef:
                   name: minio
                   key: region
-            - name: BLOCKSTORAGE_ACCESSKEY
+            - name: BLOCK_STORAGE_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: minio
                   key: root-user
-            - name: BLOCKSTORAGE_SECRET
+            - name: BLOCK_STORAGE_SECRET
               valueFrom:
                 secretKeyRef:
                   name: minio
                   key: root-password
-            - name: BLOCKSTORAGE_BUCKET
+            - name: BLOCK_STORAGE_BUCKET
               valueFrom:
                 configMapKeyRef:
                   name: minio
