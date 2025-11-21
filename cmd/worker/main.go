@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
 	"os"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
+	"github.com/vultisig/feeplugin/internal/health"
 
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/keysign"
@@ -41,16 +41,14 @@ func main() {
 		logger.Fatalf("failed to initialize vault storage: %v", err)
 	}
 
-	redisOptions := asynq.RedisClientOpt{
-		Addr:     net.JoinHostPort(cfg.Redis.Host, cfg.Redis.Port),
-		Username: cfg.Redis.User,
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
+	redisConnOpt, err := asynq.ParseRedisURI(cfg.Redis.URI)
+	if err != nil {
+		logger.Fatalf("failed to parse redis URI: %v", err)
 	}
 
-	client := asynq.NewClient(redisOptions)
+	client := asynq.NewClient(redisConnOpt)
 	consumer := asynq.NewServer(
-		redisOptions,
+		redisConnOpt,
 		asynq.Config{
 			Logger:      logger,
 			Concurrency: 10,
@@ -143,6 +141,14 @@ func main() {
 	if err != nil {
 		logger.Fatalf("failed to initialize feePlugin: %v", err)
 	}
+
+	healthServer := health.New(cfg.HealthPort)
+	go func() {
+		err = healthServer.Start(ctx, logger)
+		if err != nil {
+			logger.Errorf("health server failed: %v", err)
+		}
+	}()
 
 	go feePlugin.Run(ctx)
 

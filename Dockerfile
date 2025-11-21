@@ -1,29 +1,33 @@
-ARG GO_VERSION=1
-FROM golang:${GO_VERSION}-bookworm as builder
+FROM --platform=linux/amd64 golang:1.24.2 AS builder
 
-WORKDIR /usr/src/app
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
-COPY . .
-RUN wget https://github.com/vultisig/go-wrappers/archive/refs/heads/master.tar.gz
-RUN tar -xzf master.tar.gz && \
+RUN apt-get update && apt-get install -y clang lld wget
+
+RUN wget https://github.com/vultisig/go-wrappers/archive/refs/heads/master.tar.gz && \
+    tar -xzf master.tar.gz && \
     cd go-wrappers-master && \
     mkdir -p /usr/local/lib/dkls && \
-    cp --recursive includes /usr/local/lib/dkls
+    cp -r includes /usr/local/lib/dkls
 
-ENV LD_LIBRARY_PATH=/usr/local/lib/dkls/includes/linux/:$LD_LIBRARY_PATH
+ARG SERVICE
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
 
-# Build the application
-RUN go build -o bin/out/server ./cmd/server
-RUN go build -o bin/out/worker ./cmd/worker
-RUN go build -o bin/out/tx_indexer ./cmd/tx_indexer
+ENV CGO_ENABLED=1
+ENV CC=clang
+ENV CGO_LDFLAGS=-fuse-ld=lld
+ENV LD_LIBRARY_PATH=/usr/local/lib/dkls/includes/linux:$LD_LIBRARY_PATH
+RUN go build -o main cmd/${SERVICE}/main.go
 
+FROM --platform=linux/amd64 ubuntu:22.04
 
-FROM debian:bookworm
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/src/app/bin/out/ /usr/local/bin/
+WORKDIR /app
+
+COPY --from=builder /app/main .
 COPY --from=builder /usr/local/lib/dkls /usr/local/lib/dkls
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-ENV LD_LIBRARY_PATH=/usr/local/lib/dkls/includes/linux/:$LD_LIBRARY_PATH
-
-CMD ["server"]
+ENV LD_LIBRARY_PATH=/usr/local/lib/dkls/includes/linux:$LD_LIBRARY_PATH

@@ -14,7 +14,7 @@ require (
 	github.com/vultisig/commondata v0.0.0-20250710214228-61d9ed8f7778
 	github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74
 	github.com/vultisig/recipes v0.0.0-20251110144225-8d92cf257944
-	github.com/vultisig/verifier v0.0.0-20251112074419-fabe16c5c1c0
+	github.com/vultisig/verifier v0.0.0-20251118102154-94b2c8b8f243
 	github.com/vultisig/vultisig-go v0.0.0-20251004125942-60b3b1898d15
 	golang.org/x/sync v0.16.0
 )
@@ -264,4 +264,5 @@ require (
 replace (
 	github.com/agl/ed25519 => github.com/binance-chain/edwards25519 v0.0.0-20200305024217-f36fc4b53d43
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+	nhooyr.io/websocket => github.com/coder/websocket v1.8.6
 )

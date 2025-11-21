@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
+	"github.com/vultisig/feeplugin/internal/health"
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/config"
@@ -59,6 +60,14 @@ func main() {
 		rpcs,
 	)
 
+	healthServer := health.New(cfg.HealthPort)
+	go func() {
+		err = healthServer.Start(ctx, logger)
+		if err != nil {
+			logger.Errorf("health server failed: %v", err)
+		}
+	}()
+
 	go func() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
@@ -73,11 +82,16 @@ func main() {
 	}
 }
 
-func newConfig() (config.Config, error) {
-	var cfg config.Config
+type indexerConfig struct {
+	HealthPort int `envconfig:"health_port" default:"80"`
+	config.Config
+}
+
+func newConfig() (indexerConfig, error) {
+	var cfg indexerConfig
 	err := envconfig.Process("", &cfg)
 	if err != nil {
-		return config.Config{}, fmt.Errorf("failed to process env var: %w", err)
+		return indexerConfig{}, fmt.Errorf("failed to process env var: %w", err)
 	}
 	return cfg, nil
 }

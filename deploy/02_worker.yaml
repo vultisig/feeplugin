@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      imagePullSecrets:
+        - name: ghcr
+      containers:
+        - name: worker
+          image: busybox
+          command: ["/app/main"]
+          ports:
+            - containerPort: 80
+              name: health
+          env:
+            - name: HEALTH_PORT
+              value: "80"
+            - name: PROCESSING_INTERVAL
+              value: "2m"
+            - name: VAULT_SERVICE_RELAY_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: relay
+                  key: url
+            - name: VAULT_SERVICE_LOCAL_PARTY_PREFIX
+              value: "vultisig-fees-feee"
+            - name: VAULT_SERVICE_ENCRYPTION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: encryption
+                  key: secret
+            - name: VAULT_SERVICE_DO_SETUP_MSG
+              value: "true"
+            - name: VERIFIER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: verifier
+                  key: url
+            - name: VERIFIER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: verifier
+                  key: token
+            - name: VERIFIER_PARTY_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: verifier
+                  key: party-prefix
+            - name: FEE_CONFIG_ETH_PROVIDER
+              valueFrom:
+                configMapKeyRef:
+                  name: rpc
+                  key: ethereum
+            - name: FEE_CONFIG_USDC_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: address
+                  key: usdc
+            - name: FEE_CONFIG_TREASURY_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: address
+                  key: treasury
+            - name: BLOCK_STORAGE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: minio
+                  key: host
+            - name: BLOCK_STORAGE_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: minio
+                  key: region
+            - name: BLOCK_STORAGE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: root-user
+            - name: BLOCK_STORAGE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: root-password
+            - name: BLOCK_STORAGE_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: minio
+                  key: bucket
+            - name: DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: postgres
+                  key: dsn
+            - name: REDIS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: uri
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
