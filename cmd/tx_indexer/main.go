@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/vultisig/feeplugin/internal/health"
 	"github.com/vultisig/verifier/plugin"
+	"github.com/vultisig/verifier/plugin/metrics"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/config"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
@@ -58,6 +59,7 @@ func main() {
 		cfg.Concurrency,
 		txStorage,
 		rpcs,
+		metrics.NewNilTxIndexerMetrics(),
 	)
 
 	healthServer := health.New(cfg.HealthPort)
