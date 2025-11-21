@@ -33,9 +33,9 @@ spec:
                   key: ethereum
             - name: INTERVAL
               value: "30s"
-            - name: ITERATION_TIMEOUT
+            - name: ITERATIONTIMEOUT
               value: "30s"
-            - name: MARK_LOST_AFTER
+            - name: MARKLOSTAFTER
               value: "2h"
             - name: CONCURRENCY
               value: "5"

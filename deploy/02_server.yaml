@@ -59,7 +59,7 @@ spec:
                 configMapKeyRef:
                   name: minio
                   key: region
-            - name: BLOCK_STORAGE_ACCESSKEY
+            - name: BLOCK_STORAGE_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: minio
