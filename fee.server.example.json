@@ -1,7 +1,7 @@
 {
     "server": {
         "host": "localhost",
-        "port": 8080,
+        "port": 8082,
         "encryption_secret": "test123"
     },
     "database": {

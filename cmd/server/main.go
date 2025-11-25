@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/config"
 	"github.com/vultisig/verifier/plugin/policy"
@@ -24,6 +25,7 @@ import (
 	"github.com/vultisig/verifier/vault_config"
 
 	"github.com/vultisig/feeplugin/internal/fee"
+	"github.com/vultisig/feeplugin/internal/metrics"
 )
 
 func main() {
@@ -38,6 +40,16 @@ func main() {
 	if err != nil {
 		logger.Fatalf("failed to load config: %v", err)
 	}
+
+	// Start metrics server with HTTP metrics for server
+	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceHTTP}, logger)
+	defer func() {
+		if metricsServer != nil {
+			if err := metricsServer.Stop(ctx); err != nil {
+				logger.Errorf("failed to stop metrics server: %v", err)
+			}
+		}
+	}()
 
 	redisClient, err := redis.NewRedis(cfg.Redis)
 	if err != nil {
@@ -121,6 +133,7 @@ type FeeServerConfig struct {
 	BaseConfigPath string                    `mapstructure:"base_config_path" json:"base_config_path,omitempty"`
 	Redis          config.Redis              `mapstructure:"redis" json:"redis,omitempty"`
 	BlockStorage   vault_config.BlockStorage `mapstructure:"block_storage" json:"block_storage,omitempty"`
+	Metrics        metrics.Config            `mapstructure:"metrics" json:"metrics,omitempty"`
 }
 
 func GetConfigure() (*FeeServerConfig, error) {

@@ -26,6 +26,7 @@ import (
 	"github.com/vultisig/vultisig-go/address"
 	"github.com/vultisig/vultisig-go/common"
 
+	"github.com/vultisig/feeplugin/internal/metrics"
 	"github.com/vultisig/feeplugin/internal/storage"
 	"github.com/vultisig/feeplugin/internal/verifierapi"
 )
@@ -45,6 +46,8 @@ type FeePlugin struct {
 	eth    *evm.SDK
 	ethRpc *ethclient.Client
 	signer *keysign.Signer
+
+	metrics *metrics.WorkerMetrics
 }
 
 func NewFeePlugin(
@@ -86,6 +89,8 @@ func NewFeePlugin(
 		eth:    eth,
 		ethRpc: ethRpc,
 		signer: signer,
+
+		metrics: metrics.NewWorkerMetrics(),
 	}, nil
 }
 
@@ -133,9 +138,19 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 
 			eg.Go(func() error {
 				err := fp.executeFeeTransaction(ctx, pk, fee.Amount, fee.ID)
+				success := err == nil
+				if fp.metrics != nil {
+					fp.metrics.RecordSendTransaction(fp.config.TreasuryAddress, common.Ethereum.String(), success)
+				}
+
 				if err != nil {
+					fp.logger.WithError(err).Error("failed to process fee transaction")
+					if fp.metrics != nil {
+						fp.metrics.RecordError(metrics.ErrorTypeExecution)
+					}
 					return err
 				}
+
 				count.Add(1)
 				return nil
 			})
