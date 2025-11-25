@@ -119,6 +119,10 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 			return fmt.Errorf("failed to get fees: %w", err)
 		}
 
+		if len(fees) == 0 {
+			continue
+		}
+
 		fp.logger.WithFields(logrus.Fields{
 			"pubkey": pk,
 		}).Info("processing fee")
@@ -128,7 +132,6 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 			return err
 		}
 		count.Add(1)
-		return nil
 	}
 
 	fp.logger.Info("processed fees: ", count.Load())
