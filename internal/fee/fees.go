@@ -112,6 +112,9 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to get public keys: %w", err)
 	}
+	fp.logger.WithFields(logrus.Fields{
+		"pks": len(pks),
+	}).Info("requesting fees info")
 	var count atomic.Int64
 	for _, pk := range pks {
 		fees, err := fp.verifierApi.GetPublicKeysFees(pk)
