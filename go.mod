@@ -16,7 +16,6 @@ require (
 	github.com/vultisig/recipes v0.0.0-20251110144225-8d92cf257944
 	github.com/vultisig/verifier v0.0.0-20251121064022-808121b6c086
 	github.com/vultisig/vultisig-go v0.0.0-20251004125942-60b3b1898d15
-	golang.org/x/sync v0.16.0
 )
 
 require (
@@ -243,6 +242,7 @@ require (
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/term v0.34.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
