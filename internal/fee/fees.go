@@ -13,8 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
-
 	v1 "github.com/vultisig/commondata/go/vultisig/vault/v1"
 	"github.com/vultisig/mobile-tss-lib/tss"
 	"github.com/vultisig/recipes/sdk/evm"
@@ -119,6 +117,9 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to get public keys: %w", err)
 	}
+	fp.logger.WithFields(logrus.Fields{
+		"pks": len(pks),
+	}).Info("requesting fees info")
 	var count atomic.Int64
 	for _, pk := range pks {
 		fees, err := fp.verifierApi.GetPublicKeysFees(pk)
@@ -126,40 +127,28 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 			return fmt.Errorf("failed to get fees: %w", err)
 		}
 
-		var eg errgroup.Group
-		for _, fee := range fees {
-			fp.logger.WithFields(logrus.Fields{
-				"fee_id":     fee.ID,
-				"amount":     fee.Amount,
-				"pubkey":     pk,
-				"fee_type":   fee.FeeType,
-				"created_at": fee.CreatedAt,
-			}).Info("processing fee")
-
-			eg.Go(func() error {
-				err := fp.executeFeeTransaction(ctx, pk, fee.Amount, fee.ID)
-				success := err == nil
-				if fp.metrics != nil {
-					fp.metrics.RecordSendTransaction(fp.config.TreasuryAddress, common.Ethereum.String(), success)
-				}
-
-				if err != nil {
-					fp.logger.WithError(err).Error("failed to process fee transaction")
-					if fp.metrics != nil {
-						fp.metrics.RecordError(metrics.ErrorTypeExecution)
-					}
-					return err
-				}
-
-				count.Add(1)
-				return nil
-			})
+		if len(fees) == 0 {
+			continue
 		}
 
-		err = eg.Wait()
+		fp.logger.WithFields(logrus.Fields{
+			"pubkey": pk,
+		}).Info("processing fee")
+
+		err = fp.executeFeesTransaction(ctx, pk, fees)
+		success := err == nil
+		if fp.metrics != nil {
+			fp.metrics.RecordSendTransaction(fp.config.TreasuryAddress, common.Ethereum.String(), success)
+		}
+
 		if err != nil {
-			return fmt.Errorf("eg.Wait: %w", err)
+			fp.logger.WithError(err).Error("failed to process fee transaction")
+			if fp.metrics != nil {
+				fp.metrics.RecordError(metrics.ErrorTypeExecution)
+			}
+			return err
 		}
+		count.Add(1)
 	}
 
 	fp.logger.Info("processed fees: ", count.Load())
@@ -167,7 +156,11 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 	return nil
 }
 
-func (fp *FeePlugin) executeFeeTransaction(ctx context.Context, publickey string, amount uint64, feeId ...uint64) error {
+func (fp *FeePlugin) executeFeesTransaction(ctx context.Context, publickey string, fees []*vtypes.Fee) error {
+	if len(fees) == 0 {
+		return nil
+	}
+
 	vault, err := getVaultForPubKey(fp.vault, publickey, fp.vaultEncryptionSecret)
 	if err != nil {
 		return fmt.Errorf("failed to get vault: %w", err)
@@ -179,6 +172,27 @@ func (fp *FeePlugin) executeFeeTransaction(ctx context.Context, publickey string
 	}
 
 	chain := common.Ethereum
+
+	var debt int64
+	var feeIds []uint64
+	for _, fee := range fees {
+		feeIds = append(feeIds, fee.ID)
+		switch fee.TxType {
+		case vtypes.TxTypeCredit:
+			debt -= int64(fee.Amount)
+		case vtypes.TxTypeDebit:
+			debt += int64(fee.Amount)
+		}
+	}
+
+	if debt <= 0 {
+		fp.logger.WithFields(logrus.Fields{
+			"pubkey": publickey,
+		}).Info("nothing to process, debt is negative or zero")
+		return nil
+	}
+
+	amount := uint64(debt)
 
 	tx, e := fp.genUnsignedTx(
 		ctx,
@@ -210,7 +224,7 @@ func (fp *FeePlugin) executeFeeTransaction(ctx context.Context, publickey string
 			PublicKey: publickey,
 		}, txToTrack.ID.String(), chain, tx)
 
-	return fp.initSign(ctx, signRequest, amount, false, feeId...)
+	return fp.initSign(ctx, signRequest, amount, false, feeIds...)
 }
 
 func (fp *FeePlugin) initSign(
