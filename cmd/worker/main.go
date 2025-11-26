@@ -13,19 +13,20 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vultisig/feeplugin/internal/health"
-	"github.com/vultisig/verifier/plugin/config"
-	"github.com/vultisig/verifier/vault_config"
 
 	"github.com/vultisig/verifier/plugin"
+	"github.com/vultisig/verifier/plugin/config"
 	"github.com/vultisig/verifier/plugin/keysign"
 	"github.com/vultisig/verifier/plugin/tasks"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
 	"github.com/vultisig/verifier/vault"
+	"github.com/vultisig/verifier/vault_config"
 	"github.com/vultisig/vultisig-go/relay"
 
 	"github.com/vultisig/feeplugin/internal/fee"
+	"github.com/vultisig/feeplugin/internal/health"
+	"github.com/vultisig/feeplugin/internal/metrics"
 	"github.com/vultisig/feeplugin/internal/storage/postgres"
 )
 
@@ -41,6 +42,16 @@ func main() {
 	if err != nil {
 		logger.Fatalf("failed to load config: %v", err)
 	}
+
+	// Start metrics server for tx_indexer
+	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceTxIndexer}, logger)
+	defer func() {
+		if metricsServer != nil {
+			if err := metricsServer.Stop(ctx); err != nil {
+				logger.Errorf("failed to stop metrics server: %v", err)
+			}
+		}
+	}()
 
 	vaultStorage, err := vault.NewBlockStorageImp(cfg.BlockStorage)
 	if err != nil {
@@ -177,6 +188,7 @@ type FeeWorkerConfig struct {
 	FeeConfig          fee.FeeConfig             `mapstructure:"fee_config" json:"fee_config,omitempty"`
 	ProcessingInterval time.Duration             `mapstructure:"processing_interval" json:"processing_interval,omitempty"`
 	HealthPort         int                       `mapstructure:"health_port" json:"health_port,omitempty"`
+	Metrics            metrics.Config            `mapstructure:"metrics" json:"metrics,omitempty"`
 }
 
 func GetConfigure() (*FeeWorkerConfig, error) {

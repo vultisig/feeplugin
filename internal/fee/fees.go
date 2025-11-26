@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/sirupsen/logrus"
+
 	v1 "github.com/vultisig/commondata/go/vultisig/vault/v1"
 	"github.com/vultisig/mobile-tss-lib/tss"
 	"github.com/vultisig/recipes/sdk/evm"
@@ -24,6 +25,7 @@ import (
 	"github.com/vultisig/vultisig-go/address"
 	"github.com/vultisig/vultisig-go/common"
 
+	"github.com/vultisig/feeplugin/internal/metrics"
 	"github.com/vultisig/feeplugin/internal/storage"
 	"github.com/vultisig/feeplugin/internal/verifierapi"
 )
@@ -43,6 +45,8 @@ type FeePlugin struct {
 	eth    *evm.SDK
 	ethRpc *ethclient.Client
 	signer *keysign.Signer
+
+	metrics *metrics.WorkerMetrics
 }
 
 func NewFeePlugin(
@@ -84,6 +88,8 @@ func NewFeePlugin(
 		eth:    eth,
 		ethRpc: ethRpc,
 		signer: signer,
+
+		metrics: metrics.NewWorkerMetrics(),
 	}, nil
 }
 
@@ -115,6 +121,7 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 	fp.logger.WithFields(logrus.Fields{
 		"pks": len(pks),
 	}).Info("requesting fees info")
+	startTime := time.Now()
 	var count atomic.Int64
 	for _, pk := range pks {
 		fees, err := fp.verifierApi.GetPublicKeysFees(pk)
@@ -132,17 +139,22 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 
 		err = fp.executeFeesTransaction(ctx, pk, fees)
 		if err != nil {
-			return err
+			fp.logger.WithError(err).Error("failed to process fee transaction")
+			continue
 		}
 		count.Add(1)
 	}
 
 	fp.logger.Info("processed fees: ", count.Load())
+	if fp.metrics != nil {
+		fp.metrics.RecordFeeExecution(time.Since(startTime))
+	}
 
 	return nil
 }
 
 func (fp *FeePlugin) executeFeesTransaction(ctx context.Context, publickey string, fees []*vtypes.Fee) error {
+	startTime := time.Now()
 	if len(fees) == 0 {
 		return nil
 	}
@@ -210,7 +222,25 @@ func (fp *FeePlugin) executeFeesTransaction(ctx context.Context, publickey strin
 			PublicKey: publickey,
 		}, txToTrack.ID.String(), chain, tx)
 
-	return fp.initSign(ctx, signRequest, amount, false, feeIds...)
+	err = fp.initSign(ctx, signRequest, amount, false, feeIds...)
+	success := err == nil
+	if fp.metrics != nil {
+		fp.metrics.RecordSendTransaction(fp.config.TreasuryAddress, common.Ethereum.String(), success)
+	}
+
+	if err != nil {
+		fp.logger.WithError(err).Error("failed to initSign")
+		if fp.metrics != nil {
+			fp.metrics.RecordError(metrics.ErrorTypeExecution)
+		}
+		return err
+	}
+
+	if fp.metrics != nil {
+		fp.metrics.RecordTransactionProcessing(common.Ethereum.String(), metrics.OperationFeeSend, time.Since(startTime))
+	}
+
+	return nil
 }
 
 func (fp *FeePlugin) initSign(

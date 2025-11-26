@@ -10,12 +10,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
-	"github.com/vultisig/feeplugin/internal/health"
+
 	"github.com/vultisig/verifier/plugin"
-	"github.com/vultisig/verifier/plugin/metrics"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/config"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
+
+	"github.com/vultisig/feeplugin/internal/health"
+	"github.com/vultisig/feeplugin/internal/metrics"
 )
 
 func main() {
@@ -30,6 +32,16 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("config.ReadTxIndexerConfig: %w", err))
 	}
+
+	// Start metrics server with HTTP metrics for server
+	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceHTTP}, logger)
+	defer func() {
+		if metricsServer != nil {
+			if err := metricsServer.Stop(ctx); err != nil {
+				logger.Errorf("failed to stop metrics server: %v", err)
+			}
+		}
+	}()
 
 	pgPool, err := pgxpool.New(ctx, cfg.Database.DSN)
 	if err != nil {
@@ -51,6 +63,8 @@ func main() {
 		logger.Fatalf("failed to initialize RPCs: %v", err)
 	}
 
+	txMetrics := metrics.NewTxIndexerMetrics()
+
 	worker := tx_indexer.NewWorker(
 		logger,
 		cfg.Interval,
@@ -59,7 +73,7 @@ func main() {
 		cfg.Concurrency,
 		txStorage,
 		rpcs,
-		metrics.NewNilTxIndexerMetrics(),
+		txMetrics,
 	)
 
 	healthServer := health.New(cfg.HealthPort)
@@ -86,6 +100,7 @@ func main() {
 
 type indexerConfig struct {
 	HealthPort int `envconfig:"health_port" default:"80"`
+	Metrics    metrics.Config
 	config.Config
 }
 
