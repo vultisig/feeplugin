@@ -121,6 +121,7 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 	fp.logger.WithFields(logrus.Fields{
 		"pks": len(pks),
 	}).Info("requesting fees info")
+	startTime := time.Now()
 	var count atomic.Int64
 	for _, pk := range pks {
 		fees, err := fp.verifierApi.GetPublicKeysFees(pk)
@@ -145,11 +146,15 @@ func (fp *FeePlugin) ProcessFees(ctx context.Context) error {
 	}
 
 	fp.logger.Info("processed fees: ", count.Load())
+	if fp.metrics != nil {
+		fp.metrics.RecordFeeExecution(time.Since(startTime))
+	}
 
 	return nil
 }
 
 func (fp *FeePlugin) executeFeesTransaction(ctx context.Context, publickey string, fees []*vtypes.Fee) error {
+	startTime := time.Now()
 	if len(fees) == 0 {
 		return nil
 	}
@@ -230,6 +235,11 @@ func (fp *FeePlugin) executeFeesTransaction(ctx context.Context, publickey strin
 		}
 		return err
 	}
+
+	if fp.metrics != nil {
+		fp.metrics.RecordTransactionProcessing(common.Ethereum.String(), metrics.OperationFeeSend, time.Since(startTime))
+	}
+
 	return nil
 }
 

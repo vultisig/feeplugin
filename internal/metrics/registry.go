@@ -59,11 +59,10 @@ func registerHTTPMetrics(logger *logrus.Logger) {
 
 // registerWorkerMetrics registers worker-related metrics
 func registerWorkerMetrics(logger *logrus.Logger) {
-	registerIfNotExists(workerPolicyExecutionsByID, "worker_policy_executions_by_id", logger)
-	registerIfNotExists(workerPolicyExecutionsTotal, "worker_policy_executions_total", logger)
+	registerIfNotExists(workerSendTransactionsTotal, "worker_send_transactions_total", logger)
 	registerIfNotExists(workerSwapTransactionsTotal, "worker_swap_transactions_total", logger)
 	registerIfNotExists(workerLastExecutionTimestamp, "worker_last_execution_timestamp", logger)
-	registerIfNotExists(workerExecutionDuration, "worker_execution_duration", logger)
+	registerIfNotExists(workerFeeExecutionDuration, "worker_fee_execution_duration", logger)
 	registerIfNotExists(workerErrorsTotal, "worker_errors_total", logger)
 	registerIfNotExists(workerTransactionProcessingDuration, "worker_transaction_processing_duration", logger)
 }

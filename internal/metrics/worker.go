@@ -8,29 +8,12 @@ import (
 	"github.com/vultisig/vultisig-go/common"
 )
 
+const (
+	OperationFeeSend = "fee_send"
+	OperationFeeSwap = "fee_swap"
+)
+
 var (
-	// Policy execution metrics by policy ID
-	workerPolicyExecutionsByID = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: "fee",
-			Subsystem: "worker",
-			Name:      "policy_executions_by_id_total",
-			Help:      "Total number of executions per policy ID",
-		},
-		[]string{"policy_id", "status"}, // policy_id, success/error
-	)
-
-	// Policy execution metrics
-	workerPolicyExecutionsTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: "fee",
-			Subsystem: "worker",
-			Name:      "policy_executions_total",
-			Help:      "Total number of policy executions",
-		},
-		[]string{"status"}, // success, error
-	)
-
 	// Send transaction metrics by asset
 	workerSendTransactionsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -59,17 +42,17 @@ var (
 			Namespace: "fee",
 			Subsystem: "worker",
 			Name:      "last_execution_timestamp",
-			Help:      "Timestamp of last policy execution",
+			Help:      "Timestamp of last fee collect execution",
 		},
 	)
 
-	// Policy execution rate (executions per second over time window)
-	workerExecutionDuration = prometheus.NewHistogram(
+	// Fee execution rate (executions per second over time window)
+	workerFeeExecutionDuration = prometheus.NewHistogram(
 		prometheus.HistogramOpts{
 			Namespace: "fee",
 			Subsystem: "worker",
 			Name:      "execution_duration_seconds",
-			Help:      "Time taken to execute a policy",
+			Help:      "Time taken to execute a fee processing",
 			Buckets:   prometheus.DefBuckets,
 		},
 	)
@@ -106,22 +89,6 @@ func NewWorkerMetrics() *WorkerMetrics {
 	return &WorkerMetrics{}
 }
 
-// RecordPolicyExecution records a policy execution with policy ID
-func (wm *WorkerMetrics) RecordPolicyExecution(policyID string, success bool, duration time.Duration) {
-	status := "success"
-	if !success {
-		status = "error"
-	}
-
-	// Record by policy ID
-	workerPolicyExecutionsByID.WithLabelValues(policyID, status).Inc()
-
-	// Record overall totals
-	workerPolicyExecutionsTotal.WithLabelValues(status).Inc()
-	workerExecutionDuration.Observe(duration.Seconds())
-	workerLastExecutionTimestamp.Set(float64(time.Now().Unix()))
-}
-
 // RecordSendTransaction records a swap transaction
 func (wm *WorkerMetrics) RecordSendTransaction(asset, chain string, success bool) {
 	status := "success"
@@ -145,6 +112,12 @@ func (wm *WorkerMetrics) RecordSwapTransaction(fromAsset, toAsset, sourceChain, 
 // RecordError records different types of worker errors
 func (wm *WorkerMetrics) RecordError(errorType string) {
 	workerErrorsTotal.WithLabelValues(errorType).Inc()
+}
+
+// RecordFeeExecution records fee processing time
+func (wm *WorkerMetrics) RecordFeeExecution(duration time.Duration) {
+	workerFeeExecutionDuration.Observe(duration.Seconds())
+	workerLastExecutionTimestamp.Set(float64(time.Now().Unix()))
 }
 
 // RecordTransactionProcessing records transaction processing time
