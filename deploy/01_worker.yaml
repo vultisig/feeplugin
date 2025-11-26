@@ -113,6 +113,10 @@ spec:
                 secretKeyRef:
                   name: redis
                   key: uri
+            - name: METRICS_ENABLED
+              value: "true"
+            - name: METRICS_PORT
+              value: "8088"
           resources:
             requests:
               memory: "32Mi"
