@@ -13,16 +13,22 @@ spec:
     metadata:
       labels:
         app: worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8088"
+        prometheus.io/path: "/metrics"
     spec:
       imagePullSecrets:
         - name: ghcr
       containers:
         - name: worker
           image: busybox
-          command: ["/app/main"]
+          command: [ "/app/main" ]
           ports:
             - containerPort: 80
               name: health
+            - containerPort: 8088
+              name: metrics
           env:
             - name: HEALTH_PORT
               value: "80"
