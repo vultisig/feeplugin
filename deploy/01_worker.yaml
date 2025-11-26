@@ -27,7 +27,7 @@ spec:
             - name: HEALTH_PORT
               value: "80"
             - name: PROCESSING_INTERVAL
-              value: "5m"
+              value: "15m"
             - name: VAULT_SERVICE_RELAY_SERVER
               valueFrom:
                 configMapKeyRef:
