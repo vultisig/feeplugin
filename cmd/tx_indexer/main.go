@@ -9,7 +9,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/sirupsen/logrus"
 
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
@@ -17,6 +16,7 @@ import (
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
 
 	"github.com/vultisig/feeplugin/internal/health"
+	"github.com/vultisig/feeplugin/internal/logging"
 	"github.com/vultisig/feeplugin/internal/metrics"
 )
 
@@ -24,14 +24,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetLevel(logrus.DebugLevel)
-
 	cfg, err := newConfig()
 	if err != nil {
 		panic(fmt.Errorf("config.ReadTxIndexerConfig: %w", err))
 	}
+
+	logger := logging.NewLogger(cfg.LogFormat)
 
 	// Start metrics server with HTTP metrics for server
 	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceHTTP}, logger)
@@ -99,7 +97,8 @@ func main() {
 }
 
 type indexerConfig struct {
-	HealthPort int `envconfig:"health_port" default:"80"`
+	LogFormat  logging.LogFormat `envconfig:"log_format" default:"text"`
+	HealthPort int               `envconfig:"health_port" default:"80"`
 	Metrics    metrics.Config
 	config.Config
 }
