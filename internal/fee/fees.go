@@ -274,9 +274,16 @@ func (fp *FeePlugin) initSign(
 	if err != nil {
 		return fmt.Errorf("failed to decode b64 proposed tx: %w", err)
 	}
-	txHex := gcommon.Bytes2Hex(txBytes)
+	ethEvmChainID, err := common.Ethereum.EvmID()
+	if err != nil {
+		return fmt.Errorf("failed to get Ethereum EVM ID: %w", err)
+	}
+	txHash, err := ComputeTxHash(txBytes, sigs, ethEvmChainID)
+	if err != nil {
+		return fmt.Errorf("client.ComputeTxHash: %w", err)
+	}
 
-	err = fp.verifierApi.MarkFeeAsCollected(amount, txHex, common.Ethereum.String(), feeId...)
+	err = fp.verifierApi.MarkFeeAsCollected(amount, txHash, common.Ethereum.String(), feeId...)
 	if err != nil {
 		return fmt.Errorf("failed to mark fee as collected: %w", err)
 	}
