@@ -25,6 +25,7 @@ import (
 	"github.com/vultisig/verifier/vault_config"
 
 	"github.com/vultisig/feeplugin/internal/fee"
+	"github.com/vultisig/feeplugin/internal/logging"
 	"github.com/vultisig/feeplugin/internal/metrics"
 )
 
@@ -32,14 +33,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetLevel(logrus.DebugLevel)
-
 	cfg, err := GetConfigure()
 	if err != nil {
-		logger.Fatalf("failed to load config: %v", err)
+		logrus.Fatalf("failed to load config: %v", err)
 	}
+
+	logger := logging.NewLogger(cfg.LogFormat)
 
 	// Start metrics server with HTTP metrics for server
 	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceHTTP}, logger)
@@ -128,6 +127,7 @@ func main() {
 }
 
 type FeeServerConfig struct {
+	LogFormat      logging.LogFormat         `mapstructure:"log_format" json:"log_format,omitempty" default:"text"`
 	Server         server.Config             `mapstructure:"server" json:"server"`
 	Postgres       config.Database           `mapstructure:"database" json:"database,omitempty"`
 	BaseConfigPath string                    `mapstructure:"base_config_path" json:"base_config_path,omitempty"`
@@ -156,6 +156,7 @@ func ReadConfig(configName string) (*FeeServerConfig, error) {
 	viper.AutomaticEnv()
 
 	viper.SetDefault("Server.VaultsFilePath", "vaults")
+	viper.SetDefault("LogFormat", "text")
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {

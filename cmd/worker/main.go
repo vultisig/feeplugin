@@ -26,6 +26,7 @@ import (
 
 	"github.com/vultisig/feeplugin/internal/fee"
 	"github.com/vultisig/feeplugin/internal/health"
+	"github.com/vultisig/feeplugin/internal/logging"
 	"github.com/vultisig/feeplugin/internal/metrics"
 	"github.com/vultisig/feeplugin/internal/storage/postgres"
 )
@@ -34,14 +35,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetLevel(logrus.DebugLevel)
-
 	cfg, err := GetConfigure()
 	if err != nil {
-		logger.Fatalf("failed to load config: %v", err)
+		logrus.Fatalf("failed to load config: %v", err)
 	}
+
+	logger := logging.NewLogger(cfg.LogFormat)
 
 	// Start metrics server for tx_indexer
 	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceTxIndexer}, logger)
@@ -179,6 +178,7 @@ func main() {
 }
 
 type FeeWorkerConfig struct {
+	LogFormat          logging.LogFormat         `mapstructure:"log_format" json:"log_format,omitempty" default:"text"`
 	Redis              config.Redis              `mapstructure:"redis" json:"redis,omitempty"`
 	Verifier           config.Verifier           `mapstructure:"verifier" json:"verifier,omitempty"`
 	BlockStorage       vault_config.BlockStorage `mapstructure:"block_storage" json:"block_storage,omitempty"`
@@ -208,6 +208,8 @@ func ReadConfig(configName string) (*FeeWorkerConfig, error) {
 	viper.AddConfigPath(".")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
+
+	viper.SetDefault("LogFormat", "text")
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
