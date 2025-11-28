@@ -3,11 +3,16 @@ kind: Ingress
 metadata:
   name: plugin-fee
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web-internal
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: "letsencrypt"
 spec:
   ingressClassName: traefik
+  tls:
+    - secretName: plugin-fee-tls
+      hosts:
+        - plugin-fee-server.lb.services.1conf.com
   rules:
-    - host: fee.lb-1.plugins-cluster.nbitslabs.com
+    - host: plugin-fee-server.lb.services.1conf.com
       http:
         paths:
           - path: /
