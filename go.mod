@@ -16,7 +16,7 @@ require (
 	github.com/vultisig/commondata v0.0.0-20250710214228-61d9ed8f7778
 	github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74
 	github.com/vultisig/recipes v0.0.0-20251121162508-0e2803afd85b
-	github.com/vultisig/verifier v0.0.0-20251125120440-cf9b2f00f510
+	github.com/vultisig/verifier v0.0.0-20251201170101-44d5a87838cd
 	github.com/vultisig/vultisig-go v0.0.0-20251004125942-60b3b1898d15
 )
 

@@ -112,6 +112,9 @@ func main() {
 		fee.NewSpec(),
 		server.DefaultMiddlewares(),
 	)
+	if cfg.Verifier.Token != "" {
+		srv.SetAuthMiddleware(server.NewAuth(cfg.Verifier.Token).Middleware)
+	}
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)
@@ -134,6 +137,7 @@ type FeeServerConfig struct {
 	Redis          config.Redis              `mapstructure:"redis" json:"redis,omitempty"`
 	BlockStorage   vault_config.BlockStorage `mapstructure:"block_storage" json:"block_storage,omitempty"`
 	Metrics        metrics.Config            `mapstructure:"metrics" json:"metrics,omitempty"`
+	Verifier       config.Verifier           `mapstructure:"verifier" json:"verifier,omitempty"`
 }
 
 func GetConfigure() (*FeeServerConfig, error) {
