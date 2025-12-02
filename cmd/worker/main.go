@@ -43,7 +43,7 @@ func main() {
 	logger := logging.NewLogger(cfg.LogFormat)
 
 	// Start metrics server for tx_indexer
-	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceTxIndexer}, logger)
+	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceWorker}, logger)
 	defer func() {
 		if metricsServer != nil {
 			if err := metricsServer.Stop(ctx); err != nil {

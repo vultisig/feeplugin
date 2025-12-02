@@ -16,6 +16,7 @@ import (
 
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/config"
+	smetrics "github.com/vultisig/verifier/plugin/metrics"
 	"github.com/vultisig/verifier/plugin/policy"
 	"github.com/vultisig/verifier/plugin/policy/policy_pg"
 	"github.com/vultisig/verifier/plugin/redis"
@@ -102,6 +103,9 @@ func main() {
 		logger.Fatalf("failed to initialize policy service: %v", err)
 	}
 
+	// Add metrics middleware to default middlewares
+	middlewares := append(server.DefaultMiddlewares(), metrics.HTTPMiddleware())
+
 	srv := server.NewServer(
 		cfg.Server,
 		policyService,
@@ -110,8 +114,12 @@ func main() {
 		asynqClient,
 		asynqInspector,
 		fee.NewSpec(),
-		server.DefaultMiddlewares(),
+		middlewares,
+		smetrics.NewNilPluginServerMetrics(),
 	)
+	if cfg.Verifier.Token != "" {
+		srv.SetAuthMiddleware(server.NewAuth(cfg.Verifier.Token).Middleware)
+	}
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)
@@ -134,6 +142,7 @@ type FeeServerConfig struct {
 	Redis          config.Redis              `mapstructure:"redis" json:"redis,omitempty"`
 	BlockStorage   vault_config.BlockStorage `mapstructure:"block_storage" json:"block_storage,omitempty"`
 	Metrics        metrics.Config            `mapstructure:"metrics" json:"metrics,omitempty"`
+	Verifier       config.Verifier           `mapstructure:"verifier" json:"verifier,omitempty"`
 }
 
 func GetConfigure() (*FeeServerConfig, error) {
