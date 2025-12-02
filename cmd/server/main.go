@@ -16,6 +16,7 @@ import (
 
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/config"
+	smetrics "github.com/vultisig/verifier/plugin/metrics"
 	"github.com/vultisig/verifier/plugin/policy"
 	"github.com/vultisig/verifier/plugin/policy/policy_pg"
 	"github.com/vultisig/verifier/plugin/redis"
@@ -102,6 +103,9 @@ func main() {
 		logger.Fatalf("failed to initialize policy service: %v", err)
 	}
 
+	// Add metrics middleware to default middlewares
+	middlewares := append(server.DefaultMiddlewares(), metrics.HTTPMiddleware())
+
 	srv := server.NewServer(
 		cfg.Server,
 		policyService,
@@ -110,7 +114,8 @@ func main() {
 		asynqClient,
 		asynqInspector,
 		fee.NewSpec(),
-		server.DefaultMiddlewares(),
+		middlewares,
+		smetrics.NewNilPluginServerMetrics(),
 	)
 	if cfg.Verifier.Token != "" {
 		srv.SetAuthMiddleware(server.NewAuth(cfg.Verifier.Token).Middleware)

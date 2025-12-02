@@ -32,7 +32,7 @@ func main() {
 	logger := logging.NewLogger(cfg.LogFormat)
 
 	// Start metrics server with HTTP metrics for server
-	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceHTTP}, logger)
+	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceTxIndexer}, logger)
 	defer func() {
 		if metricsServer != nil {
 			if err := metricsServer.Stop(ctx); err != nil {
