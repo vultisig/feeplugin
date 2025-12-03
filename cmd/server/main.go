@@ -40,7 +40,6 @@ func main() {
 	}
 
 	logger := logging.NewLogger(cfg.LogFormat)
-
 	// Start metrics server with HTTP metrics for server
 	metricsServer := metrics.StartMetricsServer(cfg.Metrics, []string{metrics.ServiceHTTP}, logger)
 	defer func() {
