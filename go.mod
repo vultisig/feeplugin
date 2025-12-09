@@ -15,8 +15,8 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/vultisig/commondata v0.0.0-20250710214228-61d9ed8f7778
 	github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74
-	github.com/vultisig/recipes v0.0.0-20251205121234-90468c5859fc
-	github.com/vultisig/verifier v0.0.0-20251205134402-c3717400c12e
+	github.com/vultisig/recipes v0.0.0-20251205220719-5f7c073df79f
+	github.com/vultisig/verifier v0.0.0-20251209132645-41b0b39218d0
 	github.com/vultisig/vultisig-go v0.0.0-20251201083443-f9306a44b356
 )
 
@@ -55,11 +55,12 @@ require (
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce // indirect
 	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd // indirect
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792 // indirect
-	github.com/bytedance/sonic v1.13.2 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/bytedance/sonic v1.14.2 // indirect
+	github.com/bytedance/sonic/loader v0.4.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cockroachdb/errors v1.12.0 // indirect
 	github.com/cockroachdb/fifo v0.0.0-20240606204812-0bbfbd93a7ce // indirect
 	github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506 // indirect
