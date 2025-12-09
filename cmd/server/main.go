@@ -103,7 +103,7 @@ func main() {
 	}
 
 	// Add metrics middleware to default middlewares
-	middlewares := append(server.DefaultMiddlewares(), metrics.HTTPMiddleware())
+	middlewares := append(server.DefaultMiddlewares(logger), metrics.HTTPMiddleware())
 
 	srv := server.NewServer(
 		cfg.Server,
