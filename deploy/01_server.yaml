@@ -99,7 +99,7 @@ spec:
                 secretKeyRef:
                   name: verifier
                   key: token
-            - name: LOGFORMAT
+            - name: LOG_FORMAT
               value: "json"
           resources:
             requests:

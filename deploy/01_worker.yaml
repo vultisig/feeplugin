@@ -117,7 +117,7 @@ spec:
               value: "true"
             - name: METRICS_PORT
               value: "8088"
-            - name: LOGFORMAT
+            - name: LOG_FORMAT
               value: "json"
           resources:
             requests:
