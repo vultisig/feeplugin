@@ -15,7 +15,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/vultisig/commondata v0.0.0-20250710214228-61d9ed8f7778
 	github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74
-	github.com/vultisig/recipes v0.0.0-20251205220719-5f7c073df79f
+	github.com/vultisig/recipes v0.0.0-20251215083627-ff2d0c30d44d
 	github.com/vultisig/verifier v0.0.0-20251209132645-41b0b39218d0
 	github.com/vultisig/vultisig-go v0.0.0-20251201083443-f9306a44b356
 )
