@@ -3,7 +3,21 @@ package fee
 import (
 	"errors"
 	"fmt"
+
+	"github.com/vultisig/vultisig-go/common"
 )
+
+var supportedChains = []common.Chain{
+	common.Ethereum,
+}
+
+func getSupportedChainStrings() []string {
+	var cc []string
+	for _, c := range supportedChains {
+		cc = append(cc, c.String())
+	}
+	return cc
+}
 
 // These are properties and parameters specific to the fee plugin config. They should be distinct from system/core config
 type FeeConfig struct {
