@@ -20,6 +20,7 @@ import (
 	"github.com/vultisig/verifier/plugin/tasks"
 	"github.com/vultisig/verifier/plugin/tx_indexer"
 	"github.com/vultisig/verifier/plugin/tx_indexer/pkg/storage"
+	"github.com/vultisig/verifier/safety"
 	"github.com/vultisig/verifier/vault"
 	"github.com/vultisig/verifier/vault_config"
 	"github.com/vultisig/vultisig-go/relay"
@@ -114,6 +115,7 @@ func main() {
 		client,
 		vaultStorage,
 		txIndexerService,
+		safety.NewManager(Temp{}, logger),
 	)
 	if err != nil {
 		logger.Fatalf("failed to create vault service: %v", err)
@@ -270,4 +272,12 @@ func getAllKeys(t reflect.Type) []string {
 	}
 
 	return result
+}
+
+// TODO: rework
+type Temp struct {
+}
+
+func (Temp) GetControlFlags(ctx context.Context, k1 string, k2 string) (map[string]bool, error) {
+	return map[string]bool{}, nil
 }
