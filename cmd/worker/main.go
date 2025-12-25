@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/vultisig/verifier/safety"
 
 	"github.com/vultisig/verifier/plugin"
 	"github.com/vultisig/verifier/plugin/config"
