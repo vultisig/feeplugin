@@ -347,6 +347,7 @@ func (fp *FeePlugin) genUnsignedTx(
 		gcommon.HexToAddress(toAddress),
 		gcommon.HexToAddress(contractAddress),
 		amount,
+		0, // since we don't have a bunch of txs
 	)
 	if err != nil {
 		return nil, fmt.Errorf("p.eth.MakeTxTransferNative: %v", err)
