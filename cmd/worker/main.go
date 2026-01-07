@@ -114,6 +114,7 @@ func main() {
 		client,
 		vaultStorage,
 		txIndexerService,
+		nil,
 	)
 	if err != nil {
 		logger.Fatalf("failed to create vault service: %v", err)
