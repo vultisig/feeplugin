@@ -1,6 +1,6 @@
 module github.com/vultisig/feeplugin
 
-go 1.24.2
+go 1.25
 
 require (
 	github.com/ethereum/go-ethereum v1.15.11
@@ -15,8 +15,8 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/vultisig/commondata v0.0.0-20250710214228-61d9ed8f7778
 	github.com/vultisig/mobile-tss-lib v0.0.0-20250316003201-2e7e570a4a74
-	github.com/vultisig/recipes v0.0.0-20251215083627-ff2d0c30d44d
-	github.com/vultisig/verifier v0.0.0-20251225080514-01bc6f6eda71
+	github.com/vultisig/recipes v0.0.0-20260106090536-1198eaa21228
+	github.com/vultisig/verifier v0.0.0-20260107054834-94ca6b9fbbd6
 	github.com/vultisig/vultisig-go v0.0.0-20251201083443-f9306a44b356
 )
 
@@ -227,7 +227,7 @@ require (
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/vultisig/go-wrappers v0.0.0-20250716071337-34a5c0f4d6e0 // indirect
+	github.com/vultisig/go-wrappers v0.0.0-20260106233302-7e12f0dd6a93 // indirect
 	github.com/vultisig/vultiserver v0.0.0-20250825042420-c6e6ac281110 // indirect
 	github.com/xyield/xrpl-go v0.0.0-20230914223425-9abe75c05830 // indirect
 	github.com/zondax/hid v0.9.2 // indirect
