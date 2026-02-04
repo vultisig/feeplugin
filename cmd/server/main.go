@@ -117,6 +117,7 @@ func main() {
 		middlewares,
 		smetrics.NewNilPluginServerMetrics(),
 		logger,
+		nil, // safety.Storage - not used by feeplugin
 	)
 	if cfg.Verifier.Token != "" {
 		srv.SetAuthMiddleware(server.NewAuth(cfg.Verifier.Token).Middleware)
