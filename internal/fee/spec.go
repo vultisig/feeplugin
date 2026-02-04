@@ -7,6 +7,8 @@ import (
 	"github.com/vultisig/verifier/plugin"
 )
 
+const PluginFees = "vultisig-fees-feee"
+
 type Spec struct {
 	plugin.Unimplemented
 }
@@ -18,7 +20,7 @@ func NewSpec() *Spec {
 func (s *Spec) GetRecipeSpecification() (*types.RecipeSchema, error) {
 	return &types.RecipeSchema{
 		Version:            1,
-		PluginId:           "vultisig-fees-feee",
+		PluginId:           PluginFees,
 		PluginName:         "Billing",
 		PluginVersion:      1,
 		SupportedResources: s.buildSupportedResources(),
@@ -91,4 +93,12 @@ func (s *Spec) buildSupportedResources() []*types.ResourcePattern {
 	}
 
 	return resources
+}
+
+func (s *Spec) GetPluginID() string {
+	return PluginFees
+}
+
+func (s *Spec) GetSkills() string {
+	return skillsMD
 }
