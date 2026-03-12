@@ -11,10 +11,7 @@ data:
         "list": [
           {
             "builtIn": 1,
-            "datasource": {
-              "type": "grafana",
-              "uid": "-- Grafana --"
-            },
+            "datasource": null,
             "enable": true,
             "hide": true,
             "iconColor": "rgba(0, 211, 255, 1)",
@@ -30,10 +27,7 @@ data:
       "links": [],
       "panels": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -138,10 +132,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "rate(fee_worker_send_transactions_total[5m])",
               "legendFormat": "{{status}}",
@@ -153,10 +144,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -202,10 +190,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "sum(fee_worker_send_transactions_total{status=\"success\"})",
               "legendFormat": "__auto",
@@ -217,10 +202,7 @@ data:
           "type": "stat"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -270,10 +252,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "sum(fee_worker_send_transactions_total{status=\"error\"})",
               "legendFormat": "__auto",
@@ -285,10 +264,7 @@ data:
           "type": "stat"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -362,10 +338,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "histogram_quantile(0.99, rate(fee_worker_execution_duration_seconds_bucket[5m]))",
               "legendFormat": "p99",
@@ -373,10 +346,7 @@ data:
               "refId": "A"
             },
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "histogram_quantile(0.95, rate(fee_worker_execution_duration_seconds_bucket[5m]))",
               "legendFormat": "p95",
@@ -384,10 +354,7 @@ data:
               "refId": "B"
             },
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "histogram_quantile(0.50, rate(fee_worker_execution_duration_seconds_bucket[5m]))",
               "legendFormat": "p50",
@@ -399,10 +366,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -476,10 +440,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "sum by (source_chain, dest_chain, status) (rate(fee_worker_swap_transactions_total[5m]))",
               "legendFormat": "{{source_chain}} -> {{dest_chain}} ({{status}})",
@@ -491,10 +452,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -568,10 +526,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "sum by (error_type) (rate(fee_worker_errors_total[5m]))",
               "legendFormat": "{{error_type}}",
@@ -583,10 +538,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -660,10 +612,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "histogram_quantile(0.99, sum by (chain, operation, le) (rate(fee_worker_transaction_processing_duration_seconds_bucket[5m])))",
               "legendFormat": "{{chain}} - {{operation}} (p99)",
@@ -675,10 +624,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -752,10 +698,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "sum by (method, path) (rate(fee_server_http_requests_total[5m]))",
               "legendFormat": "{{method}} {{path}}",
@@ -767,10 +710,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -844,10 +784,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "histogram_quantile(0.99, sum by (method, path, le) (rate(fee_server_http_request_duration_seconds_bucket[5m])))",
               "legendFormat": "{{method}} {{path}} (p99)",
@@ -859,10 +796,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -936,10 +870,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "sum by (chain, status) (fee_tx_indexer_active_transactions)",
               "legendFormat": "{{chain}} - {{status}}",
@@ -951,10 +882,7 @@ data:
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
+          "datasource": null,
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1028,10 +956,7 @@ data:
           "pluginVersion": "11.0.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "prometheus"
-              },
+              "datasource": null,
               "editorMode": "code",
               "expr": "fee_tx_indexer_chain_height",
               "legendFormat": "{{chain}}",
